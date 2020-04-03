@@ -1,0 +1,181 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:di="http://www.omg.org/spec/DD/20100524/DI" xmlns:camunda="http://camunda.org/schema/1.0/bpmn" id="Definitions_0da80z1" targetNamespace="http://bpmn.io/schema/bpmn" exporter="Camunda Modeler" exporterVersion="3.6.0">
+  <bpmn:process id="penerimaan_pegawai" name="Penerimaan Pegawai" isExecutable="true">
+    <bpmn:startEvent id="pendaftaran" name="Submit CV">
+      <bpmn:extensionElements>
+        <camunda:formData businessKey="no_pendaftaran">
+          <camunda:formField id="no_pendaftaran" label="nomor pendaftaran" type="string" />
+          <camunda:formField id="nama" label="nama" type="string" />
+          <camunda:formField id="dokumen_pendukung" label="dokumen pendukung" type="string" />
+          <camunda:formField id="posisi" label="posisi" type="string" />
+        </camunda:formData>
+      </bpmn:extensionElements>
+      <bpmn:outgoing>SequenceFlow_1gbpao7</bpmn:outgoing>
+    </bpmn:startEvent>
+    <bpmn:sequenceFlow id="SequenceFlow_1gbpao7" sourceRef="pendaftaran" targetRef="verifikasi_berkas" />
+    <bpmn:endEvent id="EndEvent_1sqdcd2" name="Selesai">
+      <bpmn:incoming>SequenceFlow_1anlncj</bpmn:incoming>
+      <bpmn:incoming>SequenceFlow_0vu8b5u</bpmn:incoming>
+      <bpmn:incoming>SequenceFlow_010hje8</bpmn:incoming>
+    </bpmn:endEvent>
+    <bpmn:userTask id="verifikasi_berkas" name="Verifikasi Berkas">
+      <bpmn:extensionElements>
+        <camunda:formData>
+          <camunda:formField id="surat_lamaran" label="surat lamaran" type="boolean" />
+          <camunda:formField id="biodata" label="biodata" type="boolean" />
+          <camunda:formField id="ijazah_terakhir" label="ijazah terakhir" type="boolean" />
+          <camunda:formField id="status_verifikasi_berkas" label="status verifikasi berkas" type="string" />
+        </camunda:formData>
+      </bpmn:extensionElements>
+      <bpmn:incoming>SequenceFlow_1gbpao7</bpmn:incoming>
+      <bpmn:outgoing>SequenceFlow_01o6dp2</bpmn:outgoing>
+    </bpmn:userTask>
+    <bpmn:exclusiveGateway id="ExclusiveGateway_0qq8vg3">
+      <bpmn:incoming>SequenceFlow_01o6dp2</bpmn:incoming>
+      <bpmn:outgoing>SequenceFlow_1anlncj</bpmn:outgoing>
+      <bpmn:outgoing>SequenceFlow_039yhrm</bpmn:outgoing>
+    </bpmn:exclusiveGateway>
+    <bpmn:sequenceFlow id="SequenceFlow_01o6dp2" sourceRef="verifikasi_berkas" targetRef="ExclusiveGateway_0qq8vg3" />
+    <bpmn:sequenceFlow id="SequenceFlow_1anlncj" name="status_verifikasi_berkas = &#34;tidak_lulus&#34;" sourceRef="ExclusiveGateway_0qq8vg3" targetRef="EndEvent_1sqdcd2">
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${status_verifikasi_berkas=="tidak_lulus"}</bpmn:conditionExpression>
+    </bpmn:sequenceFlow>
+    <bpmn:sequenceFlow id="SequenceFlow_039yhrm" name="status_verifikasi_berkas = &#34;lulus&#34;, kirim soal tertulis" sourceRef="ExclusiveGateway_0qq8vg3" targetRef="input_jawaban">
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${status_verifikasi_berkas=="lulus"}</bpmn:conditionExpression>
+    </bpmn:sequenceFlow>
+    <bpmn:userTask id="input_jawaban" name="Input Jawaban">
+      <bpmn:extensionElements>
+        <camunda:formData>
+          <camunda:formField id="jawaban" label="jawaban" type="string" defaultValue="tes?" />
+        </camunda:formData>
+      </bpmn:extensionElements>
+      <bpmn:incoming>SequenceFlow_039yhrm</bpmn:incoming>
+      <bpmn:outgoing>SequenceFlow_1k80srj</bpmn:outgoing>
+    </bpmn:userTask>
+    <bpmn:userTask id="verifikasi_teknis" name="Verifikasi Teknis">
+      <bpmn:extensionElements>
+        <camunda:formData>
+          <camunda:formField id="komentar" label="komentar" type="string" />
+          <camunda:formField id="status_verifikasi_teknis" label="status verifikasi teknis" type="string" />
+        </camunda:formData>
+      </bpmn:extensionElements>
+      <bpmn:incoming>SequenceFlow_1k80srj</bpmn:incoming>
+      <bpmn:outgoing>SequenceFlow_09rjoo7</bpmn:outgoing>
+    </bpmn:userTask>
+    <bpmn:sequenceFlow id="SequenceFlow_1k80srj" sourceRef="input_jawaban" targetRef="verifikasi_teknis" />
+    <bpmn:exclusiveGateway id="ExclusiveGateway_10lc3yp">
+      <bpmn:incoming>SequenceFlow_09rjoo7</bpmn:incoming>
+      <bpmn:outgoing>SequenceFlow_0vu8b5u</bpmn:outgoing>
+      <bpmn:outgoing>SequenceFlow_1uc4yy7</bpmn:outgoing>
+    </bpmn:exclusiveGateway>
+    <bpmn:sequenceFlow id="SequenceFlow_09rjoo7" sourceRef="verifikasi_teknis" targetRef="ExclusiveGateway_10lc3yp" />
+    <bpmn:sequenceFlow id="SequenceFlow_0vu8b5u" name="status_verifikasi_teknis = &#34;tidak_lulus&#34;" sourceRef="ExclusiveGateway_10lc3yp" targetRef="EndEvent_1sqdcd2">
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${status_verifikasi_teknis=="tidak_lulus"}</bpmn:conditionExpression>
+    </bpmn:sequenceFlow>
+    <bpmn:userTask id="input_data_pegawai" name="Input Data Pegawai">
+      <bpmn:extensionElements>
+        <camunda:formData>
+          <camunda:formField id="nik" label="nik" type="string" />
+          <camunda:formField id="tanggal_mulai_kerja" label="tanggal mulai kerja" type="date" />
+        </camunda:formData>
+      </bpmn:extensionElements>
+      <bpmn:incoming>SequenceFlow_1uc4yy7</bpmn:incoming>
+      <bpmn:outgoing>SequenceFlow_010hje8</bpmn:outgoing>
+    </bpmn:userTask>
+    <bpmn:sequenceFlow id="SequenceFlow_1uc4yy7" name="status_verifkasi_teknis = &#34;lulus&#34;" sourceRef="ExclusiveGateway_10lc3yp" targetRef="input_data_pegawai">
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${status_verifikasi_teknis=="lulus"}</bpmn:conditionExpression>
+    </bpmn:sequenceFlow>
+    <bpmn:sequenceFlow id="SequenceFlow_010hje8" sourceRef="input_data_pegawai" targetRef="EndEvent_1sqdcd2" />
+  </bpmn:process>
+  <bpmndi:BPMNDiagram id="BPMNDiagram_1">
+    <bpmndi:BPMNPlane id="BPMNPlane_1" bpmnElement="penerimaan_pegawai">
+      <bpmndi:BPMNShape id="_BPMNShape_StartEvent_2" bpmnElement="pendaftaran">
+        <dc:Bounds x="167" y="222" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="160" y="265" width="53" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="SequenceFlow_1gbpao7_di" bpmnElement="SequenceFlow_1gbpao7">
+        <di:waypoint x="203" y="240" />
+        <di:waypoint x="252" y="240" />
+        <di:waypoint x="252" y="241" />
+        <di:waypoint x="300" y="241" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNShape id="EndEvent_1sqdcd2_di" bpmnElement="EndEvent_1sqdcd2">
+        <dc:Bounds x="1162" y="222" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="1207.5" y="233" width="37" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="UserTask_0w6fxq5_di" bpmnElement="verifikasi_berkas">
+        <dc:Bounds x="300" y="201" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="ExclusiveGateway_0qq8vg3_di" bpmnElement="ExclusiveGateway_0qq8vg3" isMarkerVisible="true">
+        <dc:Bounds x="455" y="215" width="50" height="50" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="SequenceFlow_01o6dp2_di" bpmnElement="SequenceFlow_01o6dp2">
+        <di:waypoint x="400" y="241" />
+        <di:waypoint x="428" y="241" />
+        <di:waypoint x="428" y="240" />
+        <di:waypoint x="455" y="240" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="449" y="486" width="88" height="27" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="SequenceFlow_1anlncj_di" bpmnElement="SequenceFlow_1anlncj">
+        <di:waypoint x="480" y="215" />
+        <di:waypoint x="480" y="120" />
+        <di:waypoint x="1180" y="120" />
+        <di:waypoint x="1180" y="222" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="787" y="86" width="86" height="40" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="SequenceFlow_039yhrm_di" bpmnElement="SequenceFlow_039yhrm">
+        <di:waypoint x="505" y="240" />
+        <di:waypoint x="610" y="240" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="498" y="252" width="86" height="40" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNShape id="UserTask_13129wb_di" bpmnElement="input_jawaban">
+        <dc:Bounds x="610" y="200" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="UserTask_05e4y5h_di" bpmnElement="verifikasi_teknis">
+        <dc:Bounds x="770" y="200" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="SequenceFlow_1k80srj_di" bpmnElement="SequenceFlow_1k80srj">
+        <di:waypoint x="710" y="240" />
+        <di:waypoint x="770" y="240" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNShape id="ExclusiveGateway_10lc3yp_di" bpmnElement="ExclusiveGateway_10lc3yp" isMarkerVisible="true">
+        <dc:Bounds x="925" y="215" width="50" height="50" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="SequenceFlow_09rjoo7_di" bpmnElement="SequenceFlow_09rjoo7">
+        <di:waypoint x="870" y="240" />
+        <di:waypoint x="925" y="240" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="SequenceFlow_0vu8b5u_di" bpmnElement="SequenceFlow_0vu8b5u">
+        <di:waypoint x="975" y="240" />
+        <di:waypoint x="1162" y="240" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="1019" y="197" width="86" height="40" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNShape id="UserTask_10idqct_di" bpmnElement="input_data_pegawai">
+        <dc:Bounds x="900" y="370" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="SequenceFlow_1uc4yy7_di" bpmnElement="SequenceFlow_1uc4yy7">
+        <di:waypoint x="950" y="265" />
+        <di:waypoint x="950" y="370" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="957" y="303" width="85" height="27" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="SequenceFlow_010hje8_di" bpmnElement="SequenceFlow_010hje8">
+        <di:waypoint x="1000" y="410" />
+        <di:waypoint x="1180" y="410" />
+        <di:waypoint x="1180" y="258" />
+      </bpmndi:BPMNEdge>
+    </bpmndi:BPMNPlane>
+  </bpmndi:BPMNDiagram>
+</bpmn:definitions>
